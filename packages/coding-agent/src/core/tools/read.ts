@@ -273,6 +273,7 @@ export function createReadToolDefinition(
 								const buffer = await ops.readFile(absolutePath);
 								const textContent = buffer.toString("utf-8");
 								const allLines = textContent.split("\n");
+								if (allLines.length > 1 && allLines.at(-1) === "") allLines.pop();
 								const totalFileLines = allLines.length;
 								// Apply offset if specified. Convert from 1-indexed input to 0-indexed array access.
 								const startLine = offset ? Math.max(0, offset - 1) : 0;

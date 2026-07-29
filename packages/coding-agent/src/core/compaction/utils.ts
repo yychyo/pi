@@ -129,9 +129,10 @@ export function serializeConversation(messages: Message[]): string {
 				}
 			}
 
-			if (thinkingParts.length > 0) {
-				parts.push(`[Assistant thinking]: ${thinkingParts.join("\n")}`);
-			}
+			// Thinking blocks are redundant in compaction — the after-thinking text already captures conclusions
+			// if (thinkingParts.length > 0) {
+			// 	parts.push(`[Assistant thinking]: ${thinkingParts.join("\n")}`);
+			// }
 			if (msg.content.some((block) => block.type === "text")) {
 				parts.push(`[Assistant]: ${contentText(msg.content)}`);
 			}

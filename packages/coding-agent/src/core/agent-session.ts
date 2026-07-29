@@ -1913,7 +1913,7 @@ export class AgentSession {
 			headers,
 			customInstructions,
 			signal,
-			this.thinkingLevel,
+			undefined, // HACK: disable thinking for compaction — thinking slows it down with no value added (see hacks/HACKS.md)
 			this.agent.streamFunction,
 			env,
 			this.settingsManager.getRetrySettings(),
@@ -2026,6 +2026,7 @@ export class AgentSession {
 			const newEntries = this.sessionManager.getEntries();
 			const sessionContext = this.sessionManager.buildSessionContext();
 			this.agent.state.messages = sessionContext.messages;
+			await this.agent.prefill();
 			const estimatedTokensAfter = estimateMessagesTokens(sessionContext.messages);
 
 			// Get the saved compaction entry for the extension event
@@ -2351,6 +2352,7 @@ export class AgentSession {
 			const newEntries = this.sessionManager.getEntries();
 			const sessionContext = this.sessionManager.buildSessionContext();
 			this.agent.state.messages = sessionContext.messages;
+			await this.agent.prefill();
 			const estimatedTokensAfter = estimateMessagesTokens(sessionContext.messages);
 
 			// Get the saved compaction entry for the extension event

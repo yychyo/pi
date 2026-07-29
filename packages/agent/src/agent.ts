@@ -1,4 +1,5 @@
 import type {
+	AssistantMessage,
 	ImageContent,
 	Message,
 	Model,
@@ -7,7 +8,7 @@ import type {
 	ThinkingBudgets,
 	Transport,
 } from "@earendil-works/pi-ai";
-import { runAgentLoop, runAgentLoopContinue } from "./agent-loop.ts";
+import { buildLlmContext, runAgentLoop, runAgentLoopContinue } from "./agent-loop.ts";
 import { getDefaultStreamFn } from "./stream-fn.ts";
 import type {
 	AfterToolCallContext,
@@ -440,6 +441,20 @@ export class Agent {
 			messages: this._state.messages.slice(),
 			tools: this._state.tools.slice(),
 		};
+	}
+
+	async prefill(options?: { signal?: AbortSignal }): Promise<AssistantMessage> {
+		const config = this.createLoopConfig();
+		const context = await buildLlmContext(this.createContextSnapshot(), config, options?.signal);
+		const resolvedApiKey =
+			(config.getApiKey ? await config.getApiKey(config.model.provider) : undefined) || config.apiKey;
+		const response = await this.streamFunction(config.model, context, {
+			...config,
+			apiKey: resolvedApiKey,
+			maxTokens: 1,
+			signal: options?.signal,
+		});
+		return response.result();
 	}
 
 	private createLoopConfig(options: { skipInitialSteeringPoll?: boolean } = {}): AgentLoopConfig {
